@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+
+  websocket-server:
+    build: ./web-socket
+    volumes:
+      - ./web-socket:/var/www/html
+    command: php bin/server.php
+    depends_on:
+      - redis
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+
+  matchmaking:
+    build: ./matchmaking
+    volumes:
+      - ./matchmaking:/var/www/html
+      - ./web-socket/src:/var/www/shared-src
+    working_dir: /var/www/html
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      APP_ENV: dev
+    depends_on:
+      - redis
+    ports:
+      - "8000:8000"
+    networks:
+      - backend
+
+
+networks:
+  backend:
+    name: backend
