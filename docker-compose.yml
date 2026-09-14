@@ -3,8 +3,6 @@ version: '3.8'
 services:
   redis:
     image: redis:7
-    ports:
-      - "6379:6379"
     networks:
       - backend
 
@@ -21,7 +19,9 @@ services:
       - backend
 
   matchmaking:
-    build: ./matchmaking
+    build:
+      context: .
+      dockerfile: matchmaking/Dockerfile
     volumes:
       - ./matchmaking:/var/www/html
       - ./web-socket/src:/var/www/shared-src
@@ -41,3 +41,4 @@ services:
 networks:
   backend:
     name: backend
+    external: true
